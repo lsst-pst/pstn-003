@@ -1,0 +1,59 @@
+\section{Introduction} \label{sec:intro}
+ Writing concise and testable requirements is very difficult.
+ Writing requirements in 2005 for a system to run in 2022 is extremely difficult but is the case for DM.
+Assumptions are made about requirements and how to implement them, but
+the perspective of the requirement writer and implementer are usually not identical.
+Over a long period this could diverge significantly and  choices made years ago may not be so valid anymore.
+So we should continually challenge requirements and ensure they are still valid and that we are interpreting them correctly.
+
+
+\section{The catalog  access  question}\label{sec:cat}
+The DataBase requirements are in \citeds{LDM-555}.
+
+\subsection{Current approach to catalog interaction SQL/ Qserv}
+\label{sec:qserv}
+Qserv is a custom massively parallel database built  by LSST(SLAC) for LSST.
+This is built on the assumption (requirement) that astronomy on the catalog will be done as queries.
+Qserv provides SQL access (with limited sub queries) to all catalogs - including visits e.g. force photometry/light curves as depicted in \figref{fig:catopt1}.
+Some implementation remains for Qserv e.g.: Python integration, MYDB, Authentication.
+
+\begin{figure}
+\begin{center}
+ \includegraphics[width=0.5\textwidth]{images/catopt1}
+\caption{Qserv architecture as envisioned in \citeds{LDM-135}  and currently being implemented \label{fig:catopt1}}.
+\end{center}
+\end{figure}
+
+\subsubsection{Fundamental questions}
+\begin{enumerate}
+\item Will scientists mainly (90-95\%) query Object catalogue?
+\item  Is this what users expect ? To express correlations etc in SQL ? Machine learning in SQL
+\footnote{Machine learning  can be done in SQL \url{http://madlib.incubator.apache.org/}}?
+\item Have scientists  simply not yet been trained to think that is possible ?
+\end{enumerate}
+
+\subsection{Heterogeneous Data Access }
+ A more heterogeneous approach could be followed if we assume that most SQL like queries would be on the Object catalog - or perhaps even the Object Lite catalog.  Then the source and other large tables would be stored in something like parquet files and accessed with one of the map reduce type systems such as Hadoop or Dask. This is depicted in \figref{fig:catopt2}.
+
+\begin{figure}
+\begin{center}
+ \includegraphics[width=0.9\textwidth]{images/catopt2}
+\caption{ Heterogeneous catalog access with SQL for the Object Catalog but files only fro Sources \label{fig:catopt2}}
+\end{center}
+\end{figure}
+
+We have to be clear SQL would then be restricted to what could fit in a DB (PetaByte DBs are possible today)
+There are a few astronomy oriented database implementations which could handle the 40TB Object Lite catalog e.g. Sqlserver or Postgress. These also have implementations for MYDB and CO protocols like TAP.
+
+MYDB would then be MYDB .. not in HADOOP or Dask - it would be queriable of course.
+
+There may be a slightly higher cost on hardware for this approach as it will be less efficient for the source table access.
+
+\subsubsection{Fundamental questions}
+\begin{enumerate}
+ \item What are potential user expectations SQL all the way down ? \\
+DM has been collecting use case in \citeds{dmtn-086} - non of which would require generalized queries against source. All go via the object table.
+ \item Or something more imperative ?
+\end{enumerate}
+
+
