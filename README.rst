@@ -8,13 +8,14 @@ Discussion of object vs source table queries
 ############################################
 
 PSTN-003
---------
+========
 
 QSERV is built to allow SQL queries on sources, but will most queries be on object?
 
-To compile this document you need to have set up  lsst-texmf see  http:\\lsst-texmf.lsst.io . The bin directory of texmf must be in your path for generateAcronyms.py to be found and  work. 
-**Links**
+To compile this document you need to have set up lsst-texmf, see  http://lsst-texmf.lsst.io.
+The bin directory of texmf must be in your path for generateAcronyms.py to be found and work. 
 
+**Links**
 
 - Live drafts: https://pstn-003.lsst.io
 - GitHub: https://github.com/lsst-pst/pstn-003
@@ -23,6 +24,4 @@ To compile this document you need to have set up  lsst-texmf see  http:\\lsst-te
 
 Copyright 2019 Association of Universities for Research in Astronomy, Inc.
 
-
 This work is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.
-
