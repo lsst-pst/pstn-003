@@ -14,7 +14,7 @@ It is interesting to consider the size of tables summarized in \tabref{tab:sizes
 
 \input{sizetab.tex} % this is in the images git repo
 
-It is also worth considering the usage for those tables as in \tabref{tab:use}.
+It is also worth considering the usage for those tables as in \tabref{tab:use}. {\bf PST should closely examine this table, which came from the AMCL and consider if the numbers are correct/plausible.}
 \input{usetab.tex} % this is in the images git repo
 
 \subsection{Current approach to catalog interaction SQL/ Qserv}
@@ -31,13 +31,6 @@ Some implementation remains for Qserv e.g.: Python integration, MYDB, Authentica
 \end{center}
 \end{figure}
 
-\subsubsection{Fundamental questions}
-\begin{enumerate}
-\item Will scientists mainly (90-95\%) query Object catalogue?
-\item  Is this what users expect ? To express correlations etc in SQL ? Machine learning in SQL
-\footnote{Machine learning  can be done in SQL \url{http://madlib.incubator.apache.org/}}?
-\item Have scientists  simply not yet been trained to think that is possible ?
-\end{enumerate}
 
 \subsection{Heterogeneous Data Access }
  A more heterogeneous approach could be followed if we assume that most SQL like queries would be on the Object catalog - or perhaps even the Object Lite catalog.  Then the source and other large tables would be stored in something like parquet files and accessed with one of the map reduce type systems such as Hadoop or Dask. This is depicted in \figref{fig:catopt2}.
@@ -45,7 +38,7 @@ Some implementation remains for Qserv e.g.: Python integration, MYDB, Authentica
 \begin{figure}
 \begin{center}
  \includegraphics[width=0.9\textwidth]{images/catopt2}
-\caption{ Heterogeneous catalog access with SQL for the Object Catalog but files only fro Sources \label{fig:catopt2}}
+\caption{ Heterogeneous catalog access with SQL for the Object Catalog but files only for Sources \label{fig:catopt2}}
 \end{center}
 \end{figure}
 
@@ -56,11 +49,23 @@ MYDB would then be MYDB .. not in HADOOP or Dask - it would be queriable of cour
 
 There may be a slightly higher cost on hardware for this approach as it will be less efficient for the source table access.
 
-\subsubsection{Fundamental questions}
+\section {Conclusion}
+\subsection{Fundamental questions}
+We should consider :
 \begin{enumerate}
- \item What are potential user expectations SQL all the way down ? \\
-DM has been collecting use case in \citeds{dmtn-086} - non of which would require generalized queries against source. All go via the object table.
- \item Or something more imperative ?
+\item Will scientists mainly (90-95\%) query Object catalogue (see \tabref{tab:use}?
+	\begin{itemize}
+	\item DM has been collecting use case in \citeds{dmtn-086} - non of which would require generalized queries against source. All go via the object table.
+	\end{itemize}
+\item  Is this what users expect (SQL all the way down) ? To express correlations etc in SQL ? Machine learning in SQL
+\footnote{Machine learning  can be done in SQL \url{http://madlib.incubator.apache.org/}}?
+
+\item Have scientists  simply not yet been trained to think that is possible ?
+ \item Or would users expect something more imperative ? Python access to files like Parquet.
 \end{enumerate}
 
+
+We have run the Qserv queries with Google BigQuery  (REF?)  - and its a mix bag. We must answer the fundamental questions above to decide if QSERV  is the correct approach. At this point QSERV is well on its way to completion and one approach would be to make it available for DR1 and see what the usage pattern actually is.
+
+If we wished to reduce risk and in the era of in kind contributions having a postgress or other implementation of ObjectLite available with a TAP interface would be a super contribution - this may bring its own interop problems with MYDB etc of course.
 
