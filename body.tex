@@ -71,4 +71,10 @@ The above developments taken together would seem to indicate that DM will need t
 
 With construction nearing completion, and considering the staffing for Qserv development (3.5 FTE), the \textit{management-only} recommendation would be not to change db horses at this time and to cross the start line into operations according to current plans.  If real usage patterns then indicate SQL-oriented access is in fact effectively limited to just the Object table, we should be prepared to swap the database on the left-hand side for something more ideal for operating at that reduced scale; any database hardware resources thus freed could then be absorbed into the computation platform on the right.
 
+A final reason to continue with Qserv is the unique ability to query the Source table - the community have never had such a facility and it may be a route to discovery.  if we agree with \tabref{tab:use} up to 50\% of our science potential lies in that table so providing this as an experiment in DR1 would seem a reasonable investment in potential science return.
+
 If we wished to reduce risk, and in the era of in-kind contributions, having a Postgres or other implementation of ObjectLite available with a TAP interface would be a super contribution - this may bring its own interop problems with MyDB etc. of course.
+
+Should we agree with \tabref{tab:use} the project would benefit greatly from having multiple source of Object table available from partner institutions. This would allow us to distribute 95\% of our query load to other locations and allow scientists the easiest access to the most frequently consulted data.
+An open data policy would have made this easy to achieve, a data rights driven policy should still consider opening the object catalog up - consider it a sort of advertisement at the cost of perhaps allowing non data rights holders a shot at 20\% of the science discoveries.
+
