@@ -1,6 +1,6 @@
 #for dependency you want all tex files  but for acronyms you do not want to include the acronyms file itself.
 tex=$(filter-out $(wildcard *acronyms.tex) , $(wildcard *.tex))  
-
+TEXINPUTS=images
 
 SRC= PSTN-003.tex
 
