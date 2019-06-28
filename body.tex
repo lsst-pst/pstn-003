@@ -7,65 +7,68 @@ Over a long period this could diverge significantly and  choices made years ago 
 So we should continually challenge requirements and ensure they are still valid and that we are interpreting them correctly.
 
 
-\section{The catalog  access  question}\label{sec:cat}
-The DataBase requirements are in \citeds{LDM-555}.
+\section{The catalog access question}\label{sec:cat}
+The DataBase requirements are in \citeds{LSE-61} and \citeds{LDM-555}.
 
 It is interesting to consider the size of tables summarized in \tabref{tab:sizes}.
 
-\input{sizetab.tex} % this is in the images git repo
+\input{images/sizetab.tex} % this is in the images git repo
 
 It is also worth considering the usage for those tables as in \tabref{tab:use}. {\bf PST should closely examine this table, which came from the AMCL and consider if the numbers are correct/plausible.}
-\input{usetab.tex} % this is in the images git repo
+\input{images/usetab.tex} % this is in the images git repo
 
-\subsection{Current approach to catalog interaction SQL/ Qserv}
+\subsection{Baseline approach to catalog interaction SQL/ Qserv}
 \label{sec:qserv}
-Qserv is a custom massively parallel database built  by LSST(SLAC) for LSST.
-This is built on the assumption (requirement) that astronomy on the catalog will be done as queries.
-Qserv provides SQL access (with limited sub queries) to all catalogs - including visits e.g. force photometry/light curves as depicted in \figref{fig:catopt1}.
-Some implementation remains for Qserv e.g.: Python integration, MYDB, Authentication.
+Qserv is a custom massively parallel database built by LSST(SLAC) for LSST.
+This has been built on the assumption (requirement) that astronomy on the catalog will be done as queries.
+Qserv provides SQL access (with some query limitations) to all catalogs, including visits e.g. force photometry/light curves as depicted in \figref{fig:catopt1}.
+Some implementation remains for Qserv, e.g. MyDB-like functionality, authentication.
 
 \begin{figure}
 \begin{center}
  \includegraphics[width=0.5\textwidth]{images/catopt1}
-\caption{Qserv architecture as envisioned in \citeds{LDM-135}  and currently being implemented \label{fig:catopt1}}.
+\caption{Qserv architecture as baselined in \citeds{LDM-135} and currently being implemented \label{fig:catopt1}}.
 \end{center}
 \end{figure}
 
 
-\subsection{Heterogeneous Data Access }
- A more heterogeneous approach could be followed if we assume that most SQL like queries would be on the Object catalog - or perhaps even the Object Lite catalog.  Then the source and other large tables would be stored in something like parquet files and accessed with one of the map reduce type systems such as Hadoop or Dask. This is depicted in \figref{fig:catopt2}.
+\subsection{Heterogeneous Data Access}
+ An alternative heterogeneous approach has been proposed which could be followed if we assume that most SQL like queries would be on the Object catalog, or perhaps even the Object-Lite catalog.  Then the Source and other large tables would be stored in something like Parquet files, and accessed with one of the map reduce type systems such as Spark or Dask. This is depicted in \figref{fig:catopt2}.
 
 \begin{figure}
 \begin{center}
  \includegraphics[width=0.9\textwidth]{images/catopt2}
-\caption{ Heterogeneous catalog access with SQL for the Object Catalog but files only for Sources \label{fig:catopt2}}
+\caption{ Heterogeneous catalog access with SQL for the Object catalog but files only for Sources \label{fig:catopt2}}
 \end{center}
 \end{figure}
 
-We have to be clear SQL would then be restricted to what could fit in a DB (PetaByte DBs are possible today)
-There are a few astronomy oriented database implementations which could handle the 40TB Object Lite catalog e.g. Sqlserver or Postgress. These also have implementations for MYDB and VO protocols like TAP.
+We have to be clear SQL would then be restricted to what could fit in a DB (petabyte DBs are possible today.)
+There are a few astronomy oriented database implementations which could handle the 40TB Object Lite catalog e.g. SqlServer or Postgres. These also have implementations for MyDB and VO protocols like TAP.
 
-MYDB would then be MYDB .. not in Hadoop\footnote{\url{https://hadoop.apache.org/}} or Dask{\url{https://dask.org/}} - it would be queriable of course.
+MyDB would then be MyDB .. not in Spark\footnote{\url{https://spark.apache.org/}} or Dask\footnote{\url{https://dask.org/}} - it would be query-able of course.
 
-There may be a slightly higher cost on hardware for this approach as it will be less efficient for the source table access.
+There may be a higher cost on hardware for this approach, as it will be less efficient for supporting concurrent access to the source table by more than a few users at a time.
+
+\section {Recent Developments}
+
+Since the baseline plan has not to date been altered, Qserv development has continued per plan.  A couple of recent developments are worthy of note, however:
+
+\begin{itemize}
+
+\item The DRP pipelines group has recently adopted Parquet as the file format on record for intermediate data products.
+
+\item Preliminary response from reviewers and early adopters of the LSP has been overwhelmingly positive with respect to the possibility of using the Dask framework for notebook-based analysis of catalog data products.  This, in combination with the above item, make it seem both desirable and likely that DRP products be made available in Parquet format in addition to any other plans.
+
+\item Investigations into implementation strategies for the baselined (but very underspecified) "next-to-db" functionality have yielded the conclusion that users want and expect a level of sophistication in non-SQL / programmatic access to data products that already exists in popular off-the-shelf solutions but would be difficult to achieve in a project-built, tightly integrated solution.
+
+\item A proof-of-concept collaborative exploration with Google was conducted, in which Qserv was demonstrated to be both practically field-able and reasonably performant on Google cloud infrastructure.  During this exploration, "shoot-outs" were also conducted between Qserv and Google BigQuery. The results were a mixed bag; each technology out-performing the other on certain types of queries in terms of cost and performance (REF?). There is apparently yet still some life to be had from an MPP database system.
+
+\end{itemize}
 
 \section {Conclusion}
-\subsection{Fundamental questions}
-We should consider :
-\begin{enumerate}
-\item Will scientists mainly (90-95\%) query Object catalogue (see \tabref{tab:use}?
-	\begin{itemize}
-	\item DM has been collecting use case in \citeds{dmtn-086} - non of which would require generalized queries against source. All go via the object table.
-	\end{itemize}
-\item  Is this what users expect (SQL all the way down) ? To express correlations etc in SQL ? Machine learning in SQL
-\footnote{Machine learning  can be done in SQL \url{http://madlib.incubator.apache.org/}}?
 
-\item Have scientists  simply not yet been trained to think that is possible ?
- \item Or would users expect something more imperative ? Python access to files like Parquet.
-\end{enumerate}
+The above developments taken together would seem to indicate that DM will need to field something architecturally similar to the heterogeneous design presented above, \textit{regardless} of the choice of particular SQL engine on the left (Qserv or non) and/or the extent of data products to be hosted within (Object/Object-Lite vs. the whole ball of wax).  The right-hand side of the heterogeneous design is, in fact, currently being pursued in the context of LSP/LDF development.
 
+With construction nearing completion, and considering the staffing for Qserv development (3.5 FTE), the \textit{management-only} recommendation would be not to change db horses at this time and to cross the start line into operations according to current plans.  If real usage patterns then indicate SQL-oriented access is in fact effectively limited to just the Object table, we should be prepared to swap the database on the left-hand side for something more ideal for operating at that reduced scale; any database hardware resources thus freed could then be absorbed into the computation platform on the right.
 
-We have run the Qserv queries with Google BigQuery  (REF?)  - and its a mix bag. We must answer the fundamental questions above to decide if Qserv  is the correct approach. At this point Qserv is well on its way to completion and one approach would be to make it available for DR1 and see what the usage pattern actually is.
-
-If we wished to reduce risk and in the era of in kind contributions having a postgress or other implementation of ObjectLite available with a TAP interface would be a super contribution - this may bring its own interop problems with MYDB etc of course.
-
+If we wished to reduce risk, and in the era of in-kind contributions, having a Postgres or other implementation of ObjectLite available with a TAP interface would be a super contribution - this may bring its own interop problems with MyDB etc. of course.
